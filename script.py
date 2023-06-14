@@ -11,7 +11,7 @@ def send_email(sender_email, sender_password, receiver_email, subject, message):
     email_message["Subject"] = subject
 
     # Add the message body
-    email_message.attach(MIMEText(message, "plain"))
+    email_message.attach(MIMEText(message, "html"))
 
     # Connect to the SMTP server
     smtp_server = smtplib.SMTP("smtp.gmail.com", 587)  # Replace with your SMTP server and port
@@ -29,23 +29,22 @@ def genmessage(worksheet):
     rows=worksheet.get_all_records()
     for x in range(len(rows)):
         if rows[x]['Token Number']==0:
-            message.append([rows[x]['Email Address'],"You have already filled out this form. Kindly check your inbox for a previous mail. Try filling out with a different email address if you think this is a mistake."])
+            message.append([rows[x]['Email Address'],"You have already filled out this form. Kindly check your inbox for a previous mail. Try filling out the <a href='https://forms.gle/w6ZDp3KAKvdmpdnMA'>form</a> with a different email address if you think this is a mistake.<br/>Making lives easier,<br/>Hope Clinic"])
         elif rows[x]['Appointment']=='Not assigned':
-            message.append([rows[x]['Email Address'],"So sorry " +rows[x]['Name']+", we were unable to get an appointment for you today. Kindly try again tomorrow."])
+            message.append([rows[x]['Email Address'],"So sorry " +rows[x]['Name']+", we were unable to get an appointment for you today. Kindly try again tomorrow.<br/>Hope Clinic"])
         else:
             if rows[x]['Age']<18:
-                message.append([rows[x]['Email Address'],"Hello "+rows[x]['Name']+", you have been assigned the token number "+str(rows[x]['Token Number'])+" at our "+rows[x]['Location']+" clinic. Your appointment time is "+str(rows[x]['Appointment'])+". We have detected that you are under 18 years of age, please be accompanied by a legal guardian. Kindly be on time for your appointment."])
+                message.append([rows[x]['Email Address'],"Hello "+rows[x]['Name']+", you have been assigned the token number <b>"+str(rows[x]['Token Number'])+"</b> at our <i>"+rows[x]['Location']+"</i> clinic. Your appointment is scheduled for <b>"+str(rows[x]['Appointment'])+"</b>. We have detected that you are under 18 years of age, please be accompanied by a legal guardian. Kindly be on time for your appointment.<br/>Making lives easier,<br/>Hope Clinic"])
             elif rows[x]['Age']<60:
-                message.append([rows[x]['Email Address'],"Hello "+rows[x]['Name']+", you have been assigned the token number "+str(rows[x]['Token Number'])+" at our "+rows[x]['Location']+" clinic. Your appointment time is "+str(rows[x]['Appointment'])+". Congratulations! You are eligible for a senior citizen discount. Please carry a valid ID card as age proof. Please check with the reception for more details. Kindly be on time for your appointment."])
+                message.append([rows[x]['Email Address'],"Hello "+rows[x]['Name']+", you have been assigned the token number <b>"+str(rows[x]['Token Number'])+"</b> at our <i>"+rows[x]['Location']+"</i> clinic. Your appointment is scheduled for <b>"+str(rows[x]['Appointment'])+"</b>. Congratulations! You are eligible for a senior citizen discount. Please carry a valid ID card as age proof. Please check with the reception for more details. Kindly be on time for your appointment.<br/>Making lives easier,<br/>Hope Clinic"])
             else:
-                message.append([rows[x]['Email Address'],"Hello "+rows[x]['Name']+", you have been assigned the token number "+str(rows[x]['Token Number'])+" at our "+rows[x]['Location']+" clinic. Your appointment time is "+str(rows[x]['Appointment'])+". Please carry a valid government ID card as proof of age. Kindly be on time for your appointment."])
+                message.append([rows[x]['Email Address'],"Hello "+rows[x]['Name']+", you have been assigned the token number <b>"+str(rows[x]['Token Number'])+"</b> at our <i>"+rows[x]['Location']+"</i> clinic. Your appointment is scheduled for <b>"+str(rows[x]['Appointment'])+"</b>. Please carry a valid government ID card as proof of age. Kindly be on time for your appointment.<br/>Making lives easier,<br/>Hope Clinic"])
     return message        
 
 def sendmessage(message):
     sender_email = "tokenizerbotcs@gmail.com"
     sender_password = "awvhbhlmdndyparf "
-    #receiver_email = "arnavg1808@gmail.com"
-    subject = "Hello from clinic!"
+    subject = "Regarding your upcoming appointment at Hope Clinic"
     for x in range(len(message)):
         send_email(sender_email, sender_password, message[x][0],subject,message[x][1])
 
@@ -79,13 +78,12 @@ def tokenizer(worksheet):
                 emaillist.append(rows[x]['Email Address'])
             else:
                 worksheet.update_cell(x+2,8,0)
-    optimization(worksheet)
+    allocation(worksheet)
 
-def optimization(worksheet):
+def allocation(worksheet):
     l=['Delhi','Mumbai','Chennai','Kolkata','Bhopal']
     rows=worksheet.get_all_records()
     worksheet.update('I1','Appointment')
-    print("Hi")
     testlist = [{'10AM':[[],[]],'10:30AM':[[],[]],'11AM':[[],[]],'11:30AM':[[],[]],'12PM':[[],[]],'12:30PM':[[],[]],'1PM':[[],[]]},
                 {'10AM':[[],[]],'10:30AM':[[],[]],'11AM':[[],[]],'11:30AM':[[],[]],'12PM':[[],[]],'12:30PM':[[],[]],'1PM':[[],[]]},
                 {'10AM':[[],[]],'10:30AM':[[],[]],'11AM':[[],[]],'11:30AM':[[],[]],'12PM':[[],[]],'12:30PM':[[],[]],'1PM':[[],[]]},
