@@ -112,14 +112,10 @@ def allocation(worksheet):
                 else:
                     worksheet.update_cell(x+2,9,'Not assigned')
 
-
-
 if __name__=="__main__":
     worksheet = initialize()
     tokenizer(worksheet)
+    print("Appointments and tokens generated.")
     message = genmessage(worksheet)
     sendmessage(message)
-    
-
-
-    print('==============================')
+    print('Intimation mails successfully sent.')
