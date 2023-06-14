@@ -1,0 +1,85 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage[rightcaption]{sidecap}
+\usepackage{verbatim}
+\usepackage[backend=bibtex]{biblatex}
+\addbibresource{report.bib}
+
+\usepackage [ a4paper , hmargin =1.2 in , bottom =1.5 in ] { geometry }
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
+
+% Add header and footer code here
+\pagestyle{fancy}
+\lhead{CS104 Project on Spreadsheet Programming}
+\rhead{Arnav Garg}
+\cfoot{Page \thepage}
+\title{CS104 Project \\ Spreadsheet Programming}
+\author{Arnav Garg\\22B1021}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\clearpage
+
+%code of section 1, with lists
+\section{Introduction}
+This report aims to provide a comprehensive description of the CS104 project on Spreadsheet Programming.\\
+Here we implement a software to read and edit Google Sheets API to create a static system to deal with responses received through Google Forms.
+%code of section 2, make appr
+\section{Project Overview}
+%para
+We here implement a system for booking appointments at a multi locational health centre named Hope clinic. \\Form users have the option to fill in their time preference and their preferred location and they will be assigned a time slot based on their sex and chosen location. \\It also implements an algorithm to give a preference of slots to the users who fill the form first.\footnote{I also tried and played around with optimization of the assignment algorithm but was unable to implement it efficiently within constraints.}
+\section{Basic Structure}
+There are 10 queues in total- 5x2 for location and sex. I have implemented a system to prevent duplicacy by assigning a token number of 0 which is indicative to my code to send a mail to the form filler informing them of the redundancy.
+The Google Sheets are read through a service account using the Google Sheets API\autocite{1} implementing the \texttt{gspread}\autocite{4} library in python.
+I then account for 7 slots-
+\begin{enumerate}
+    \item 10AM-10:30AM
+    \item 10:30AM-11AM
+    \item 11AM-11:30AM
+    \item 11:30AM-12PM
+    \item 12PM-12:30PM
+    \item 12:30PM-1PM
+    \item 1PM-1:30PM
+\end{enumerate}
+with each slot corresponding to one token number.\\
+Now I establish a SMTP connection to the GMail host \autocite{2} and send out auto generated emails using inbuilt libraries which specify the details of the appointment assigned to the user with \texttt{html} formatting.
+\section{Customizations}
+\subsection{Location specificity}
+My thought process for the project went as follows- when a person books an appointment at a chain of clinics widely distributed across the country they can choose a specific location for which they are available to attend as locations are pretty spread out. Thus we can safely maintain location specific queues with a person able to book an appointment for only one possible location.
+\subsection{Gender queues}
+Implementing a sex based independent queue for both males and females to streamline the process of obtaining treatment is a natural consequence for distributed clinics addressing problems specifics to both the sexes. I have 2 queues at each of my 5 locations - making a total of 10 queues with each of them having a unique token number system starting from 1.\\
+A token number of 0 indicates duplicacy in token filling.
+\subsection{Optimization algorithm and time preference}
+I have added an option for the form filler to choose multiple time slots out of the 7 given to indicate their availability and assist us in assigning a time slot favourable to them. However this poses a problem, while we can trivially assign a method for assignment, by just assigning the first or last selected slot, it raises problems of optimization. This can be shown by taking examples for as less as 3 users and 4 slots. This dips into the realm of \textbf{matching theory of bipartite graphs}\autocite{3} which turned out to be tough to implement. However an efficient algorithm was developed but not implemented to keep time and space complexities feasible for very large values.\\\\
+\textbf{Claim:} An example of an efficient algorithm is assignment in \textbf{order for which slot has the least takers}, then \textbf{assignment by ascending order of token number} and then finally in a trivial order. 
+
+\subsection{Email modification}
+I have modified the bodies through the \texttt{MIMEText} function of my email to parse \texttt{html}\autocite{6}, so that my emails can display formatted text. I also added a check for age which prompts minors to be accompanied by a guardian and senior citizens to avail a special discount.
+\section{Important Links}
+\begin{itemize}
+    \item \href{https://forms.gle/KnfyxSyh6hvjdoBu9}{Google Form}
+    \item \href{https://docs.google.com/spreadsheets/d/16OCCYVb8J6uGF6t1GXo0IHV1P57_r_8tpJccRHVZVUA/edit?usp=sharing}{Google Sheets}
+    \item \href{https://github.com/Hal-lucin-ogen8/SpreadsheetToken}{GitHub Repo}
+\end{itemize}
+
+\nocite{5}
+\nocite{7}
+\printbibliography
+\end{document}
