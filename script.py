@@ -30,15 +30,15 @@ def genmessage(worksheet):
     for x in range(len(rows)):
         if rows[x]['Token Number']==0:
             message.append([rows[x]['Email Address'],"You have already filled out this form. Kindly check your inbox for a previous mail. Try filling out with a different email address if you think this is a mistake."])
-        elif rows[x]['Token Number']==-1:
-            message.append([rows[x]['Email Address'],"So sorry, we were unable to get an appointment for you today. Kindly try again tomorrow."])
+        elif rows[x]['Appointment']=='Not assigned':
+            message.append([rows[x]['Email Address'],"So sorry " +rows[x]['Name']+", we were unable to get an appointment for you today. Kindly try again tomorrow."])
         else:
             if rows[x]['Age']<18:
-                message.append([rows[x]['Email Address'],"Hello "+rows[x]['Name']+", you have been assigned the token number "+str(rows[x]['Token Number'])+" at our "+rows[x]['Location']+" clinic. We have detected that you are under 18 years of age, please be accompanied by a legal guardian. Kindly be on time for your appointment."])
+                message.append([rows[x]['Email Address'],"Hello "+rows[x]['Name']+", you have been assigned the token number "+str(rows[x]['Token Number'])+" at our "+rows[x]['Location']+" clinic. Your appointment time is "+str(rows[x]['Appointment'])+". We have detected that you are under 18 years of age, please be accompanied by a legal guardian. Kindly be on time for your appointment."])
             elif rows[x]['Age']<60:
-                message.append([rows[x]['Email Address'],"Hello "+rows[x]['Name']+", you have been assigned the token number "+str(rows[x]['Token Number'])+" at our "+rows[x]['Location']+" clinic. Congratulations! You are eligible for a senior citizen discount. Please check with the reception for more details. Kindly be on time for your appointment."])     
+                message.append([rows[x]['Email Address'],"Hello "+rows[x]['Name']+", you have been assigned the token number "+str(rows[x]['Token Number'])+" at our "+rows[x]['Location']+" clinic. Your appointment time is "+str(rows[x]['Appointment'])+". Congratulations! You are eligible for a senior citizen discount. Please carry a valid ID card as age proof. Please check with the reception for more details. Kindly be on time for your appointment."])
             else:
-                message.append([rows[x]['Email Address'],"Hello "+rows[x]['Name']+", you have been assigned the token number "+str(rows[x]['Token Number'])+" at our "+rows[x]['Location']+" clinic. Please carry a valid government ID card as proof of age. Kindly be on time for your appointment."])
+                message.append([rows[x]['Email Address'],"Hello "+rows[x]['Name']+", you have been assigned the token number "+str(rows[x]['Token Number'])+" at our "+rows[x]['Location']+" clinic. Your appointment time is "+str(rows[x]['Appointment'])+". Please carry a valid government ID card as proof of age. Kindly be on time for your appointment."])
     return message        
 
 def sendmessage(message):
@@ -58,41 +58,70 @@ def initialize():
 
 def tokenizer(worksheet):
     rows = worksheet.get_all_records()
-    worksheet.update('G1','Token Number')
+    worksheet.update('H1','Token Number')
     l=['Delhi','Mumbai','Chennai','Kolkata','Bhopal']
     female_token=[1,1,1,1,1]
     male_token=[1,1,1,1,1]
     emaillist=[]
     for x in range(len(rows)):
-        pointer=l.find(rows[x]['Location'])
+        pointer=l.index(rows[x]['Location'])
         if rows[x]['Sex']=='Male':
             if rows[x]['Email Address'] not in emaillist:
-                if male_token[pointer]<=6:
-                    worksheet.update_cell(x+2,7,male_token[pointer])
-                else:
-                    worksheet.update_cell(x+2,7,-1)
+                worksheet.update_cell(x+2,8,male_token[pointer])
                 male_token[pointer]+=1
                 emaillist.append(rows[x]['Email Address'])
             else:
-                worksheet.update_cell(x+2,7,0)
+                worksheet.update_cell(x+2,8,0)
         else:
             if rows[x]['Email Address'] not in emaillist:
-                if female_token[pointer]<=6:
-                    worksheet.update_cell(x+2,7,female_token[pointer])
-                else:
-                    worksheet.update_cell(x+2,7,-1)
+                worksheet.update_cell(x+2,8,female_token[pointer])
                 female_token[pointer]+=1
                 emaillist.append(rows[x]['Email Address'])
             else:
-                worksheet.update_cell(x+2,7,0)
+                worksheet.update_cell(x+2,8,0)
+    optimization(worksheet)
+
+def optimization(worksheet):
+    l=['Delhi','Mumbai','Chennai','Kolkata','Bhopal']
+    rows=worksheet.get_all_records()
+    worksheet.update('I1','Appointment')
+    print("Hi")
+    testlist = [{'10AM':[[],[]],'10:30AM':[[],[]],'11AM':[[],[]],'11:30AM':[[],[]],'12PM':[[],[]],'12:30PM':[[],[]],'1PM':[[],[]]},
+                {'10AM':[[],[]],'10:30AM':[[],[]],'11AM':[[],[]],'11:30AM':[[],[]],'12PM':[[],[]],'12:30PM':[[],[]],'1PM':[[],[]]},
+                {'10AM':[[],[]],'10:30AM':[[],[]],'11AM':[[],[]],'11:30AM':[[],[]],'12PM':[[],[]],'12:30PM':[[],[]],'1PM':[[],[]]},
+                {'10AM':[[],[]],'10:30AM':[[],[]],'11AM':[[],[]],'11:30AM':[[],[]],'12PM':[[],[]],'12:30PM':[[],[]],'1PM':[[],[]]},
+                {'10AM':[[],[]],'10:30AM':[[],[]],'11AM':[[],[]],'11:30AM':[[],[]],'12PM':[[],[]],'12:30PM':[[],[]],'1PM':[[],[]]},]
+    for x in range(len(rows)):
+        pointer=l.index(rows[x]['Location'])
+        string1 = rows[x]['Time preference']
+        if rows[x]['Token Number']!=0:
+            if rows[x]['Sex']=='Male':
+                list2 = string1.split(", ")
+                for k in list2:
+                    if len(testlist[pointer][k][0])==0:
+                        testlist[pointer][k][0].append(rows[x]['Token Number'])
+                        worksheet.update_cell(x+2,9,k)
+                        break
+                else:
+                    worksheet.update_cell(x+2,9,'Not assigned')
+            else:
+                list2 = string1.split(", ")
+                for k in list2:
+                    if len(testlist[pointer][k][1])==0:
+                        testlist[pointer][k][1].append(rows[x]['Token Number'])
+                        worksheet.update_cell(x+2,9,k)
+                        break
+                else:
+                    worksheet.update_cell(x+2,9,'Not assigned')
+
+
 
 if __name__=="__main__":
     worksheet = initialize()
     tokenizer(worksheet)
     message = genmessage(worksheet)
     sendmessage(message)
-    #Send the email
-    #send_email(sender_email, sender_password, receiver_email, subject, message)
+    
 
 
     print('==============================')
