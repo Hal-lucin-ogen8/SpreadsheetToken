@@ -47,7 +47,7 @@ Here we implement a software to read and edit Google Sheets API to create a stat
 We here implement a system for booking appointments at a multi locational health centre named Hope clinic. \\Form users have the option to fill in their time preference and their preferred location and they will be assigned a time slot based on their sex and chosen location. \\It also implements an algorithm to give a preference of slots to the users who fill the form first.\footnote{I also tried and played around with optimization of the assignment algorithm but was unable to implement it efficiently within constraints.}
 \section{Basic Structure}
 There are 10 queues in total- 5x2 for location and sex. I have implemented a system to prevent duplicacy by assigning a token number of 0 which is indicative to my code to send a mail to the form filler informing them of the redundancy.
-The Google Sheets are read through a service account using the Google Sheets API\autocite{1} implementing the \texttt{gspread}\autocite{4} library in python.
+The Google Sheets are read through a service account using the Google Sheets API\autocite{1} implementing the \texttt{gspread}\autocite{4} library in python. To execute the files, the user needs to run the \texttt{script.py} file after uploading relevant testcases through the google form.
 I then account for 7 slots-
 \begin{enumerate}
     \item 10AM-10:30AM
